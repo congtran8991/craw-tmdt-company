@@ -65,7 +65,6 @@ class popupCategory extends Component {
                                         deleteNameWeb: dataIdCategory
                                     }
                                     this.props.appActions.onDeleteCategory(data)
-                                    alert('Delete thành công')
                                     if(this.props.categorys.length == 1){
                                         this.props.appActions.onEffectProject(false);
                                     }

@@ -26,7 +26,6 @@ class BigItem extends Component {
         const eTarget = event.target.options[event.target.selectedIndex]
         let infoWebId = eTarget.id;
         console.log(infoWebId);
-
         let url = eTarget.value;
         this.props.appActions.fillCategoryId(infoWebId);
         $('select[name=selValue]').val(url);
@@ -66,18 +65,6 @@ class BigItem extends Component {
             }
         })()
     }
-    // refreshData=()=>{
-    //     console.log(this.props.nameWebData);
-    //     (async()=>{
-    //         try {
-    //             let nameWeb = await Axios('get', '/Api/listInfoWeb');
-    //             $('select[name=selValue]').val(nameWeb.data[0].pathUrl);
-    //             $(".selectpicker").selectpicker("refresh");
-    //         } catch (err) {
-    //             console.log(err);
-    //         }
-    //     })()
-    // }
     render() {
         console.log(this.props.selectedCategory);
         let { categorys } = this.props;

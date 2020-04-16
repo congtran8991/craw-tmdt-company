@@ -31,6 +31,12 @@ class homePage extends Component {
     this.setState({
       redirect: true
     })
+    // (async()=>{
+    // let abc = await  Axios('delete', '/Api/listCompany/abc');
+    // console.log(abc);
+    
+    // })()
+    // Axios('delete', '/Api/listCompany/abc');
   }
   onListCategory = () => {
     console.log(this.props.onCheckLoading);
@@ -53,6 +59,11 @@ class homePage extends Component {
     console.log(this.props.categorys.length);
     let { redirect = false } = this.state;
     if (redirect) return <Redirect to={'/'} />
+    // if(this.props.isChechFillLoading==false) return (
+    //      <div style={{ background:'red' }}>
+    //        {/* <CircleLoading color="#485e74"/> */}
+    //        </div>
+    //   )
     return (
       <div className='full'>
         <div className={this.props.onEffectProject == true ? "row taskForm" : "row"}>
@@ -79,8 +90,13 @@ class homePage extends Component {
         </div> */}
         <div>
           <div className='flex-inline'>
-            {this.props.onCheckLoading === false ? <CircleLoading color="#485e74"/> : this.props.onCheckLoading === true ? <InputCrawler /> : <InputCrawler />}
+            {this.props.isResultCraw === false ? <CircleLoading color="#ffc107"/> : this.props.isResultCraw === true ? <InputCrawler /> : <InputCrawler />}
           </div>
+          {this.props.isChechFillLoading==false ? <div className='fillLoading'>
+            <div>
+                <CircleLoading color="#485e74"/> 
+            </div>     
+          </div> : ''}
           <div className='input_flex'>
             <BigItem />
             {/* {this.props.onCheckLoading === false ? <CircleLoading/> : this.props.onCheckLoading === true ? <InputCrawler/> : <InputCrawler/>} */}
@@ -107,7 +123,9 @@ const mapStateToprops = (state) => {
     categorys: state.categorys,
     fillCategoryId: state.fillCategoryId,
     onEffectProject: state.onEffectProject,
-    onCheckLoading: state.onCheckLoading
+    onCheckLoading: state.onCheckLoading,
+    isChechFillLoading : state.isChechFillLoading,
+    isResultCraw : state.isResultCraw
   }
 }
 
