@@ -25,14 +25,16 @@ export const actionCrawNameCategory = (data, dateTime, pathUrl) => {
     return dispatch => {
         (async () => {
             let nameCategory = await Axios('post', '/Api/listInfoWeb/crawlerWeb', data);
-            console.log(nameCategory.data);
             if (nameCategory.data.length > 0) {
                 let dataInfoweb = {
                     nameWeb: nameCategory.data,
                     pathUrl: pathUrl,
                     timeCrawler: dateTime
                 }
-                console.log(dataInfoweb);
+                dispatch({
+                    type: Types.LOADING_CATEGORY,
+                    isResultCraw: false 
+                })
                 let addDataCategory = await Axios('post', '/Api/listInfoWeb', dataInfoweb);
                 let allDataCategory = await Axios('get', '/Api/listInfoWeb');
                 console.log(allDataCategory.data);
@@ -43,6 +45,7 @@ export const actionCrawNameCategory = (data, dateTime, pathUrl) => {
                     categorys: allDataCategory.data,
                     checkFindDataCompany: true,
                     selectedCheck: false
+                    //isResultCraw: false 
                 })
             } else {
                 alert('Chưa cào được tên danh mục')
@@ -60,28 +63,25 @@ export const actionCrawAppCompany = (dataCrawCompany, dataUrl) => {
         //(async () => {
         dispatch({
             type: Types.BEFORE_CRAW_LIST_APP_COMPANY,
-            checkFindDataCompany: false
+            checkFindDataCompany: false,
+            isResultCraw: false,
         })
         let allDataCategory = await Axios('get', '/Api/listInfoWeb');
-        console.log(allDataCategory);
-        
+        console.log(allDataCategory.data);
         let checkData = allDataCategory.data.filter((data) => {
             return data.pathUrl == dataUrl;
         })
-        console.log(dataCrawCompany);
-        console.log(dataUrl);
-        console.log(checkData);
-        
         if (checkData.length > 0) {
             let resultCraw = await Axios('post', '/Api/listCompany/', dataCrawCompany);
-            console.log(resultCraw);
+            console.log(resultCraw.data.success);
             let findListAppCompany = await Axios('get', '/Api/listCompany/' + allDataCategory.data[0]._id);
+            console.log(resultCraw.data.success);
             alert('Bạn đã cào xong')
             dispatch({
                 type: Types.CRAW_LIST_APP_COMPANY,
                 listAppCompanys: findListAppCompany.data,
                 isCheckLoading: true,
-                isResultCraw: resultCraw.success,
+                isResultCraw: resultCraw.data.success,
                 seletedCheck: true,
                 checkSdDatabase: true,
                 checkFindDataCompany: true
@@ -95,14 +95,11 @@ export const actionCrawAppCompany = (dataCrawCompany, dataUrl) => {
             dispatch({
                 type: Types.BEFORE_CRAW_LIST_APP_COMPANY,
                 checkFindDataCompany: true,
-                isCheckLoading: false
+                isCheckLoading: false,
+                isResultCraw: true
             })
 
         }
-        // })()
-        // return Axios('post', '/Api/listInfoWeb/crawlerWeb', data).then(result => {
-        //     console.log(result.data);
-        // })
     }
 }
 export const crawFindDataCompany = (listAppCompanys) => {
@@ -114,12 +111,19 @@ export const crawFindDataCompany = (listAppCompanys) => {
 export const fillCategoryId = (categoryId) => {
     return dispatch => {
         (async () => {
+            // let abc= await Axios('delete', '/Api/listCompany/deleteAll');
+            // console.log(abc);
+            dispatch({
+                type: Types.LOADING_FULL_PROJECT,
+                isChechFillLoading : false
+            })
             let findListAppCompany = await Axios('get', '/Api/listCompany/' + categoryId);
             dispatch({
                 type: Types.FILL_CATEGORY_ID,
                 categoryId,
                 listAppCompanys: findListAppCompany.data,
-                selectedCheck: false
+                selectedCheck: false,
+                isChechFillLoading : true
             })
         })()
     }
@@ -127,13 +131,18 @@ export const fillCategoryId = (categoryId) => {
 export const deleteAppCompany = (deleteData, categoryId) => {
     return dispatch => {
         (async () => {
+            dispatch({
+                type: Types.LOADING_FULL_PROJECT,
+                isChechFillLoading : false
+            })
             await Axios('delete', '/Api/listCompany', deleteData);
             let findListCompany = await Axios('get', '/Api/listCompany/' + categoryId);
             dispatch({
                 type: Types.DELETE_APP_COMPANY,
                 listAppCompanys: findListCompany.data,
                 checkDelete: true,
-                selectedCheck: false
+                selectedCheck: false,
+                isChechFillLoading : true
             })
         })()
     }
@@ -142,7 +151,8 @@ export const onSearchDataCompany = (dataSearchAppCompany) => {
     return {
         type: Types.ON_SEARCH_DATA_COMPANY,
         listAppCompanys: dataSearchAppCompany,
-        selectedCheck: false
+        selectedCheck: false,
+        checkFindDataCompany:true
     }
 }
 export const onEffectProject = (boolean) => {
@@ -169,17 +179,23 @@ export const onUpdateCategory = (data) => {
 export const onDeleteCategory = (data) => {
     return dispatch => {
         (async () => {
+            dispatch({
+                type:Types.LOADING_FULL_PROJECT, 
+                isChechFillLoading : false
+            })
             await Axios('delete', '/Api/listInfoWeb/', data);
             let dataInfoCategory = await Axios('get', '/Api/listInfoWeb');
             let categoryId = dataInfoCategory.data.length > 0 ? dataInfoCategory.data[0]._id : undefined;
             let findListCompany = await Axios('get', '/Api/listCompany/' + categoryId);
+            alert('Delete thành công')
             dispatch({
                 type: Types.ON_DELETE_CATEGORY,
                 categorys: dataInfoCategory.data,
                 seletedValue: dataInfoCategory.data.length > 0 ? dataInfoCategory.data[0].pathUrl : '',
                 listAppCompanys: findListCompany.data,
                 checkFindDataCompany: true,
-                selectedCheck: true
+                selectedCheck: true,
+                isChechFillLoading :true
             })
         })()
     }
@@ -192,6 +208,8 @@ export const onCheckLoading = () => {
     }
 }
 export const onRealoadCraw = (dataReaload) => {
+    console.log(dataReaload);
+    
     return async dispatch => {
         let findListCompanyBefore = await Axios('get', '/Api/listCompany/' + dataReaload.webinforId);
         dispatch({
@@ -200,12 +218,14 @@ export const onRealoadCraw = (dataReaload) => {
             listAppCompanys: findListCompanyBefore.data,
             selectedCheck: false,
             checkSdDatabase: false,
-            checkFindDataCompany: false
+            checkFindDataCompany: false,
+            isResultCraw : false
         })
         alert("Bạn đang cào lại")
         console.log(dataReaload);
 
-        await Axios('post', '/Api/listCompany/crawlerContinue', dataReaload);
+        let isResultCraw = await Axios('post', '/Api/listCompany/crawlerContinue', dataReaload);
+        
         let findListCompanyAfter = await Axios('get', '/Api/listCompany/' + dataReaload.webinforId);
         alert('Dữ liệu đã cào hoàn tất')
         dispatch({
@@ -214,8 +234,17 @@ export const onRealoadCraw = (dataReaload) => {
             isCheckLoading: true,
             selectedCheck: false,
             checkSdDatabase: true,
-            checkFindDataCompany: true
+            checkFindDataCompany: true,
+            isResultCraw  : isResultCraw.data.success
         })
+    }
+}
+export const onChangeResetData = (tamData) => {
+  //  console.log(tamData);
+    
+    return {
+        type: Types.ON_CHANGE_RESET_DATA,
+        listAppCompanys : tamData
     }
 }
 

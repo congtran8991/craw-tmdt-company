@@ -15,8 +15,9 @@ const getCookie = (cname) => {
     return "";
 }//https://crawler-company.herokuapp.com
 //http://localhost:4000
+//https://craw-company-redux.herokuapp.com
 export const Axios = (method , url , data={})=>{
-    url = 'https://craw-company-redux.herokuapp.com' + url;
+    url = 'http://localhost:4000' + url;
     return new Promise((resolve, reject)=>{
         axios({
             method,

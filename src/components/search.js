@@ -3,16 +3,18 @@ import { Axios } from '../Utils/Axios';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as appActions from '../actions/index'
-let wait = 0 ;
+let wait = 0;
 let tamData = [];
-let tamDem = 0 ;
+let tamDem = 0;
+let tamFill = 0;
+let fillData = [];
 class Search extends Component {
     constructor(props) {
         super(props);
         //this.onSearchData = this.onSearchData.bind(this);
         this.state = {
             searchData: '',
-            tamDemData : []
+            tamDemData: []
         }
     }
     onChangeData = (event) => {
@@ -22,27 +24,56 @@ class Search extends Component {
             [name]: value
         })
         console.log(this.props.listAppCompanys);
-        tamDem ++;
-        if(tamDem==1){
-            tamData.push(this.props.listAppCompanys);
+        // if(tamDem==1){
+        //     tamData.push(this.props.listAppCompanys);
+        // }
+        // this.setState({
+        //     tamDemData :tamData[0]
+        // })
+        tamDem ++
+        if (this.props.fillCategoryId != '') {
+            console.log(fillData[0]);
+            console.log(this.props.fillCategoryId);
+            if (fillData[0] != this.props.fillCategoryId) {
+                fillData.pop();
+                fillData.push(this.props.fillCategoryId);
+                tamData.pop()
+                tamData.push(this.props.listAppCompanys)
+                tamDem = 1
+            } else if (tamDem == 1) {
+                tamData.pop()
+                tamData.push(this.props.listAppCompanys)
+            }
+        } else if (tamDem == 1) {
+            tamData.push(this.props.listAppCompanys)
         }
+        console.log(tamData[0]);
         this.setState({
-            tamDemData :tamData[0]
+            tamDemData: tamData[0]
         })
-        this.props.appActions.onChangeResetData(tamData[0]);
-        
+        // console.log(value.trim().length);
+        // console.log(value.length);
+
+
+        if (value.trim().length == 0) {
+            this.props.appActions.onChangeResetData(tamData[0]);
+        }
+        //  this.props.appActions.onChangeResetData(tamData[0]);
+
     }
-    onSearchData =async()=>{
-        if(this.props.isResultCraw == false){
+    onSearchData = async () => {
+        if (this.props.isResultCraw == false) {
             console.log("Trần văn công");
-            
+            console.log(this.state.tamDemData);
+
+
             let { searchData } = this.state;
-            let { listAppCompanys ,checkSdDatabase ,fillCategoryId} = this.props;
+            let { listAppCompanys, checkSdDatabase, fillCategoryId } = this.props;
             let category = await Axios('get', '/Api/listInfoWeb');
-            let idCategory = fillCategoryId ? fillCategoryId : category.data.length > 0 ? category.data[0]._id : undefined ;
+            let idCategory = fillCategoryId ? fillCategoryId : category.data.length > 0 ? category.data[0]._id : undefined;
             console.log(idCategory);
             let dataCompany = await Axios('get', '/Api/listCompany/' + idCategory);
-            let dataListAppCompanys =dataCompany.data;
+            let dataListAppCompanys = dataCompany.data;
             console.log(dataListAppCompanys);
             let listCompanyName = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.nameCompany) ? (listAppCompany.nameCompany).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
@@ -56,18 +87,22 @@ class Search extends Component {
             let listCompanyTelePhone = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.telePhone) ? (listAppCompany.telePhone).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
             })
-             let nameApp = dataListAppCompanys.filter((listAppCompany) => {
+            let nameApp = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.nameApp) ? (listAppCompany.nameApp).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
             })
-            let nameTelephone = listCompanyAddress != 0 ? listCompanyAddress : listCompanyTelePhone ;
-            let nameTaxCode = listCompanyTaxCode != 0 ? listCompanyTaxCode : nameTelephone ;
-            let nameA = nameApp != 0 ? nameApp : nameTaxCode ;
-           let data =await  listCompanyName != 0 ? listCompanyName : nameA ;
-           return data;
-        }else{
+            let nameTelephone = listCompanyAddress != 0 ? listCompanyAddress : listCompanyTelePhone;
+            let nameTaxCode = listCompanyTaxCode != 0 ? listCompanyTaxCode : nameTelephone;
+            let nameA = nameApp != 0 ? nameApp : nameTaxCode;
+            let data = await listCompanyName != 0 ? listCompanyName : nameA;
+            return data;
+        } else {
             let { searchData } = this.state;
-            let { listAppCompanys ,checkSdDatabase ,fillCategoryId} = this.props;
-            let dataListAppCompanys = listAppCompanys;
+            console.log(this.state.tamDemData);
+            console.log(this.props.listAppCompanys);
+
+
+            let { listAppCompanys, checkSdDatabase, fillCategoryId } = this.props;
+            let dataListAppCompanys = this.state.tamDemData;
             console.log(dataListAppCompanys);
             let listCompanyName = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.nameCompany) ? (listAppCompany.nameCompany).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
@@ -81,35 +116,38 @@ class Search extends Component {
             let listCompanyTelePhone = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.telePhone) ? (listAppCompany.telePhone).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
             })
-             let nameApp = dataListAppCompanys.filter((listAppCompany) => {
+            let nameApp = dataListAppCompanys.filter((listAppCompany) => {
                 return (listAppCompany.nameApp) ? (listAppCompany.nameApp).toLowerCase().indexOf(searchData.toLowerCase()) != -1 : '';
             })
-            let nameTelephone = listCompanyAddress != 0 ? listCompanyAddress : listCompanyTelePhone ;
-            let nameTaxCode = listCompanyTaxCode != 0 ? listCompanyTaxCode : nameTelephone ;
-            let nameA = nameApp != 0 ? nameApp : nameTaxCode ;
-           let data =await  listCompanyName != 0 ? listCompanyName : nameA ;
-           return data;
+            let nameTelephone = listCompanyAddress != 0 ? listCompanyAddress : listCompanyTelePhone;
+            let nameTaxCode = listCompanyTaxCode != 0 ? listCompanyTaxCode : nameTelephone;
+            let nameA = nameApp != 0 ? nameApp : nameTaxCode;
+            let data = await listCompanyName != 0 ? listCompanyName : nameA;
+            console.log(data);
+
+            return data;
         }
     }
     onKeyPressData = (event) => {
         // event.preventDefault()
-        (async()=>{
-        if (event.key === 'Enter') {
-            event.preventDefault()
+        (async () => {
+            if (event.key === 'Enter') {
+                event.preventDefault()
+                console.log(this.state.tamDemData);
                 this.props.appActions.onSearchDataCompany(await this.onSearchData());
-        }
-    })()
+            }
+        })()
     }
     dataSearchCompany = () => {
-        (async()=>{
+        (async () => {
             let { categorys } = this.props;
             let { searchData } = this.state;
-            if(searchData.length==0){
+            if (searchData.length == 0) {
                 let dataWebId = categorys.length > 0 ? categorys[0]._id : undefined
                 let idCompany = this.props.fillWebInfoId ? this.props.fillWebInfoId : dataWebId;
                 let findListCompany = await Axios('get', '/Api/listCompany/' + idCompany);
                 this.props.appActions.onSearchDataCompany(findListCompany.data);
-            }else{   
+            } else {
                 this.props.appActions.onSearchDataCompany(await this.onSearchData());
             }
         })()
@@ -144,8 +182,8 @@ const mapStateToprops = (state) => {
         checkFindData: state.check_find_data_company,
         fillCategoryId: state.fillCategoryId,
         checkDelete: state.checkDelete,
-        checkSdDatabase : state.checkSdDatabase,
-        isResultCraw : state.isResultCraw
+        checkSdDatabase: state.checkSdDatabase,
+        isResultCraw: state.isResultCraw
     }
 }
 const mapDispathToprops = (dispatch) => {
