@@ -8,8 +8,13 @@ const onCheckLoading = (state = initialState, action) => {
             return action.isCheckLoading;
         case Types.ON_REALOAD_CRAW_CATEGORY:
             return action.isCheckLoading
+        // case Types.LOADING_FULL_PROJECT :
+        //     return action.isCheckLoading
+        // case Types.FILL_CATEGORY_ID :
+        //     return action.isCheckLoading       
+        // case Types.ON_DELETE_CATEGORY :
+        //     return action.isCheckLoading   
         default: return state;
     }
-    return [...state]
 }
 export default onCheckLoading;

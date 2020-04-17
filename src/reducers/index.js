@@ -12,6 +12,8 @@ import selectedCategory from './selectedCategory';
 import onCheckLoading from './onCheckLoading';
 import selectedCheck from './selectedCheck';
 import checkSdDatabase from './checkSdDatabae';
+import isChechFillLoading from './isCheckFillLoading';
+import isResultCraw from './isResultCraw'
 const appReducer = combineReducers({
     categorys,
     listAppCompanys,
@@ -25,6 +27,8 @@ const appReducer = combineReducers({
     selectedCategory,
     onCheckLoading,
     selectedCheck,
-    checkSdDatabase
+    checkSdDatabase,
+    isChechFillLoading,
+    isResultCraw
 });
 export default appReducer;
