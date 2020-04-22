@@ -17,8 +17,11 @@ const listAppCompanys = (state = initialState, action) => {
             if(action.listAppCompanys==undefined){
                 alert('Không kết nối được , Vui lòng F5 để load lại')
                 return [] ;
-            }else{
+            }else if(action.listAppCompanys){
                 return [...action.listAppCompanys];
+            }else{
+                alert('Không kết nối được , Vui lòng F5 để load lại')
+                return []
             }
         case Types.CRAW_LIST_APP_COMPANY:
             console.log(action.listAppCompanys);

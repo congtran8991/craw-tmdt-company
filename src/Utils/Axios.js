@@ -17,7 +17,7 @@ const getCookie = (cname) => {
 //http://localhost:4000
 //https://craw-company-redux.herokuapp.com
 export const Axios = (method , url , data={})=>{
-    url = 'http://localhost:4000' + url;
+    url = 'https://craw-company-redux.herokuapp.com' + url;
     return new Promise((resolve, reject)=>{
         axios({
             method,
@@ -33,3 +33,4 @@ export const Axios = (method , url , data={})=>{
         })
     })
 }
+//mongodb+srv://cong:d26051998@cluster0-32j4k.mongodb.net/test?retryWrites=true&w=majority

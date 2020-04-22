@@ -13,6 +13,8 @@ const checkFindDataList = (state = initialState, action) => {
         case types.ON_REALOAD_CRAW_CATEGORY:
             return action.checkFindDataCompany
         case types.BEFORE_CRAW_LIST_APP_COMPANY:
+            console.log(action.checkFindDataCompany);
+            
             return action.checkFindDataCompany
         case types.ON_SEARCH_DATA_COMPANY :
             return action.checkFindDataCompany   

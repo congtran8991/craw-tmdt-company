@@ -159,6 +159,9 @@ class InputCrawler extends Component {
         let dataCrawAppCompany = {
           webinfoUrl: this.state.newNameWebCategory
       }
+       this.setState({
+         crawLoad : false
+       })
         this.props.appActions.onCheckLoading();
         await this.props.appActions.actionCrawNameCategory(data, dateTime, this.props.addInputCrawler);
         console.log(this.props.checkDelete);
@@ -166,6 +169,9 @@ class InputCrawler extends Component {
          setTimeout(() => {
            alert('Đang cào data')
           this.props.appActions.actionCrawAppCompany(dataCrawAppCompany,this.state.newNameWebCategory);
+          // this.setState({
+          //   crawLoad : true
+          // })
         },4000)
       }
     })()

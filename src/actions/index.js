@@ -35,7 +35,7 @@ export const actionCrawNameCategory = (data, dateTime, pathUrl) => {
                     type: Types.LOADING_CATEGORY,
                     isResultCraw: false 
                 })
-                let addDataCategory = await Axios('post', '/Api/listInfoWeb', dataInfoweb);
+                await Axios('post', '/Api/listInfoWeb', dataInfoweb);
                 let allDataCategory = await Axios('get', '/Api/listInfoWeb');
                 console.log(allDataCategory.data);
                 

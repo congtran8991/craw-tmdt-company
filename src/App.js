@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import * as appActions from '../src/actions/index'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 let tam = 0;
+let demInterval = 0;
 let today = new Date();
     let  date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear();
     let  time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
@@ -33,28 +34,37 @@ class App extends Component {
         };
     }
     componentWillReceiveProps(props) {
-        if (props.check_find_data_company == false) {
-            console.log(props.check_find_data_company);
-             let stop   =    setInterval(() => {
-                (async () => {
-                    let data = props.categorys;
-                    let catagoryId = data.length > 0 ? data[0]._id : undefined
-                    console.log(catagoryId);
-                    let findListAppCompany = await Axios('get', '/Api/listCompany/' + catagoryId);
-                    console.log(findListAppCompany.data);
-                    
-                    //this.props.appActions.findListAppCompany(findListAppCompany.data);
-                    if (findListAppCompany.data.length > 10) {
-                        console.log("cccccccccccccccc");
-                        this.setState({
-                            listAppCompanys: findListAppCompany.data
-                        })
-                        console.log("ddddddddddddddddddd");
-                        clearInterval(stop)
-                    }
-                })()
-            }, 1000)
-        } else if (props.check_find_data_company == true) {
+        console.log(props.isResultCraw);
+        
+        if (props.isResultCraw == false) {
+            console.log(demInterval);
+            // if(demInterval==0){
+                console.log("vdhfbvjdfbv");
+                
+                let stop   =    setInterval(() => {
+                    console.log("abc");
+                   (async () => {
+                     //  let a = await Axios('get', '/Api/listInfoWeb');
+                       let data = await Axios('get', '/Api/listInfoWeb');
+                       console.log(data.data[0]);
+                       
+                       let catagoryId = data.data.length > 0 ? data.data[0]._id : undefined
+                       console.log(catagoryId);
+                       let findListAppCompany = await Axios('get', '/Api/listCompany/' + catagoryId);
+                       console.log(findListAppCompany.data);
+                       //this.props.appActions.findListAppCompany(findListAppCompany.data);
+                       if (findListAppCompany.data.length > 20) {
+                           this.setState({
+                               listAppCompanys: findListAppCompany.data
+                           })
+                           console.log("ddddddddddddddddddd");
+                           demInterval = 1;
+                           clearInterval(stop)
+                       }
+                   })()
+               }, 1000)
+           // }
+        } else if (props.isResultCraw == true) {
             console.log('abcd');
             
             this.setState({
@@ -64,10 +74,16 @@ class App extends Component {
     }
     componentDidMount() {
             (async () => {
+                this.setState({
+                    firstPageLoad : false
+                })
                 let data = await Axios('get', '/Api/listInfoWeb/')
                 let catagoryId = data.data.length > 0 ? data.data[0]._id : undefined
                 let findListAppCompany = await Axios('get', '/Api/listCompany/' + catagoryId);
                 this.props.appActions.findListAppCompany(findListAppCompany.data);
+                this.setState({
+                    firstPageLoad : true
+                })
             })()
         // }, 1000)
     }
@@ -77,6 +93,7 @@ class App extends Component {
         })
     }
     render() {
+        // if(this.state.firstPageLoad == false) return <CircleLoading color="#ffc107"/>;
         console.log(this.props.listAppCompanys);
         console.log(this.state.listAppCompanys);
         console.log(this.props.check_find_data_company);
@@ -86,7 +103,7 @@ class App extends Component {
                 <a href={`https://${cell}`} target={`_blank`}>{cell}</a>
             );
         }
-        const { SearchBar } = Search;
+        // const { SearchBar } = Search;
         const headerSortingStyle = { backgroundColor: '#e3edf8' };
         const { listCompany, redirect = false, searchData, isLoading = false, dataListUrl = '', backHomePage = false } = this.state;
         console.log(listCompany);
@@ -101,7 +118,10 @@ class App extends Component {
                 { stt: index + 1, ...listCompanys }
             )
         })
-        let dataCsvOnepage = listAppCompanys.slice((this.state.showPage - 1) * 20, this.state.showPage * 20);
+        console.log(this.state.sizePage);
+        console.log(this.state.sizePerPage);
+        let sizePerPage = this.state.sizePerPage ? this.state.sizePerPage : 25
+        let dataCsvOnepage = listAppCompanys.slice((this.state.sizePage - 1) * sizePerPage, this.state.sizePage * sizePerPage);
         let datafield = dataListCompany[0] ? dataListCompany[0].nameApp ? 'nameApp' : 'domainName' : '';
         let columns = [
             {
@@ -239,18 +259,29 @@ class App extends Component {
         };
         const CrawlerData = () => {
             const crawlerUpdateData = async () => {
+                let dataInfoCategory = await Axios('get', '/Api/listInfoWeb');
                 let dataReaload = this.props.fillCategoryId ? this.props.fillCategoryId : this.props.categorys[0]._id;
-                let data = this.props.categorys.filter((dataCategory) => {
+                let data = dataInfoCategory.data.filter((dataCategory) => {
                     return dataCategory._id == dataReaload;
                 })
-                console.log(data);
+                console.log(this.props.categorys);
                 
-                let dataRealoadUrl = {
-                    webinforId: data[0]._id,
-                    lastPage: data[0].lastPage,
-                    pathUrl: data[0].pathUrl
+                console.log(data);
+                if(this.props.categorys.length==1){
+                    let dataRealoadUrl = {
+                        webinforId: this.props.categorys[0]._id,
+                        lastPage: this.props.categorys[0].lastPage,
+                        pathUrl: this.props.categorys[0].pathUrl
+                    }
+                    this.props.appActions.onRealoadCraw(dataRealoadUrl);
+                }else{
+                    let dataRealoadUrl = {
+                        webinforId: data[0]._id,
+                        lastPage: data[0].lastPage,
+                        pathUrl: data[0].pathUrl
+                    }
+                    this.props.appActions.onRealoadCraw(dataRealoadUrl);
                 }
-                this.props.appActions.onRealoadCraw(dataRealoadUrl);
             }
             return (
                 <i
@@ -304,18 +335,28 @@ class App extends Component {
         }
         const options = {
             onSizePerPageChange: (sizePerPage, page) => {
-                // console.log('Size per page change!!!');
-                // console.log('Newest size per page:' + sizePerPage);
-                // console.log('Newest page:' + page);
+                console.log(sizePerPage);
+                this.setState({
+                    sizePerPage:sizePerPage,
+                    sizePage:page
+                })
+                
+                
             },
             onPageChange: (page, sizePerPage) => {
                 (async () => {
+                    this.setState({
+                        sizePerPage:sizePerPage,
+                        sizePage:page
+                    })
                     console.log(this.props.checkSdDatabase);
                     console.log(this.props.onCheckLoading);
                     console.log(this.props.isResultCraw);
                     
                     if (this.props.categorys.length > 0) {
                          if(this.props.isResultCraw == false ){
+                            
+                             
                             let pagiCategoryId = this.props.fillCategoryId ? this.props.fillCategoryId : this.props.categorys[0]._id;
                             let findListAppCompany = await Axios('get', '/Api/listCompany/' + pagiCategoryId);
                             console.log(this.props.appActions); 
@@ -324,12 +365,13 @@ class App extends Component {
                     }
                 })()
             },
-            sizePerPage: 20,
+            sizePerPage: 25,
 
         };
         return (
             <div className='container-fluid'>
                 {isLoading ? <CircleLoading color='#0a1c2c'/> : undefined}
+                {this.state.firstPageLoad == false ? <CircleLoading color="#ffc107"/> : ''}
                 <PaginationProvider
                     pagination={paginationFactory(
                         options)}
@@ -417,85 +459,6 @@ class App extends Component {
             </div>
         )
     }
-
-
-
-
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //          selected: [0, 1] 
-    //         };
-    //   }
-
-    //   handleBtnClick = () => {
-    //     if (!this.state.selected.includes(2)) {
-    //       this.setState(() => ({
-    //         selected: [...this.state.selected, 2]
-    //       }));
-    //     } else {
-    //       this.setState(() => ({
-    //         selected: this.state.selected.filter(x => x !== 2)
-    //       }));
-    //     }
-    //   }
-
-    //   handleOnSelect = (row, isSelect) => {
-    //     if (isSelect) {
-    //       this.setState(() => ({
-    //         selected: [...this.state.selected, row.id]
-    //       }));
-    //     } else {
-    //       this.setState(() => ({
-    //         selected: this.state.selected.filter(x => x !== row.id)
-    //       }));
-    //     }
-    //   }
-
-    //   handleOnSelectAll = (isSelect, rows) => {
-    //     const ids = rows.map(r => r.id);
-    //     if (isSelect) {
-    //       this.setState(() => ({
-    //         selected: ids
-    //       }));
-    //     } else {
-    //       this.setState(() => ({
-    //         selected: []
-    //       }));
-    //     }
-    //   }
-
-    //   render() {
-    //     const columns = [{
-    //         dataField: 'id',
-    //         text: 'Product ID'
-    //       }, {
-    //         dataField: 'name',
-    //         text: 'Product Name'
-    //       }, {
-    //         dataField: 'price',
-    //         text: 'Product Price'
-    //       }];
-    //     const products =[{
-    //         id : 1,
-    //         name :"Trân Văn công",
-    //         price : "50000k"
-    //     }] 
-    //     const selectRow = {
-    //       mode: 'checkbox',
-    //       clickToSelect: true,
-    //       selected: this.state.selected,
-    //       onSelect: this.handleOnSelect,
-    //       onSelectAll: this.handleOnSelectAll
-    //     };
-    //     return (
-    //       <div>
-    //         <button className="btn btn-success" onClick={ this.handleBtnClick }>Select/UnSelect 3rd row</button>
-    //         <BootstrapTable keyField="id" data={ products } columns={ columns } selectRow={ selectRow } />
-
-    //       </div>
-    //     );
-    //   }
 }
 const mapStateToprops = (state) => {
     console.log(state);
